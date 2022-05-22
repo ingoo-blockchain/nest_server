@@ -44,19 +44,25 @@ NestJs는 프레임워크 수준이기때문에,
 "esModuleInterop": true, /* 이것만 추가했습니다. */
 ```
 
+
+
+
+
 ## Nest 디렉토리 구조 파악하기
 
 | - /src
-| -- app.controller.ts : 단일 경로가있는 기본 컴포넌트 입니다.  
+| -- app.controller.ts : [3]  express로 치면 router 개념 입니다.  
 | -- app.controller.spec.ts : 컨트롤러에 대한 단위 테스트입니다.
-| -- app.module.ts : 애플리케이션의 루트 모듈입니다.
-| -- app.service.ts : 하나의 방법으로 기본 서비스를 제공합니다.
+| -- app.module.ts : [2] 애플리케이션의 루트 모듈입니다.
+| -- app.service.ts : [4] express 의 res.send, res.render, res.json 과 같은 응답코드
 | -- main.ts : [1] 번째로 실행되는 파일 마치 `server.js` 와 같다고 보면됩니다.
 
 일단 번역기 돌린 내용으로 적어놨습니다.
 생각 나는대로 수정하면서 고쳐가겠습니다
 
-## Nest 실행하기
+
+
+## Nest 기초 실행하기 & 설정해보기
 
 기본적으로 package.json 에 보시면 어어엄청많은 실행명령어가있습니다.
 단위테스트를 jest 를 쓰는거같네요. 난 mocha가 좋은데..
@@ -83,7 +89,9 @@ Hello world! 라는 텍스트가 적혀있었습니다.
 내용을 Hello nest로 변경뒤 브라우저를 새고로침 했는데 변경이 안되네요,
 아마 nodemon 처럼 되는건 아닌거같습니다.
 
-### [1] app.service.ts
+
+
+### 1. app.service.ts
 
 실행해보니 내가 현 몇번 포트를 사용하고있는지 console.log 안찍히더라고요,
 한번 찍어보겠습니다.
@@ -104,7 +112,9 @@ bootsrap()
 함수명이 bootstrap 이 헷갈릴거같아서 main으로 바꾸고,
 환경변수를 통해서 설정한 뒤, port를 console.log 로 찍을수있게 변경했습니다.
 
-### hot reload
+
+
+### 2. hot reload - 아직안됨 테스트중.
 
 React 에서 webpack 설정중 devServer
 hotreload 를 설정하셨다면 기억나실거에요,
@@ -174,6 +184,340 @@ bootstrap()
 ```
 
 
+
+### 3. 처리과정 (넣을예정)
+
+
+
+
+
+### 4. express -> dotenv 를 nestjs 에서 해보기
+
+
+
+> 공식문서 참조
+>
+> https://docs.nestjs.com/recipes/prisma#set-up-prisma
+
+
+
+```sh
+npm install @nestjs/config
+```
+
+
+
+**app.modules.ts**
+
+```typescript
+// ...생략
+import { ConfigModule } from '@nestjs/config'
+
+@Module({
+    imports: [ConfigModule.forRoot()],
+    controllers: [AppController],
+    providers: [AppService],
+})
+```
+
+
+
+@module 데코레이트 안에 imports 속성 배열값에 module을 집어넣어주세요.
+
+설정끝
+
+
+
+이후 프로젝트 루트 디렉토리에 파일생성
+
+**.env**
+
+```
+SERVER_POST=3500
+DB_HOST=127.0.0.1
+DB_USER=ingoo2
+DB_PASSWORD=ingoo2
+DB_DATABASE=nest
+```
+
+
+
+**app.service.ts**
+
+```typescript
+@Injectable()
+export class AppService {
+    getHello(): string {
+        return process.env.SERVER_POST
+    }
+}
+```
+
+
+
+
+
+이후 파일명으로 
+
+
+
+.env.development 
+
+.env.production 
+
+으로 처리할수있습니다
+
+
+
+환경변수 NODE_ENV 에 따라 
+
+.env.development 으로 실행할지
+
+.env.production 으로 실행할지 
+
+나눠서 처리가 가능하다고합니다.
+
+
+
+.env 내장된 기능이 아니라
+
+nestjs에서 설정해놓은 세팅이라고 하네요, 
+
+
+
+cross-env 로 한번 테스트 해보도록하죠, 
+
+
+
+
+
+### 5. express 의 미들웨어 만들어보기 
+
+
+
+express 기준 매 라우터마다 console.log를 찍은 것을 만들어본다면
+
+어떤 라우터든 실행될떄마다 특정 미들웨어가 실행되어,
+
+req.의 내용을 찍어준다고 하면
+
+```javascript
+app.use( (req,res,next)=> {
+    console.log(req.headers)
+    next()
+})
+```
+
+로 구현이 가능하겠죠,
+
+
+
+이걸 nest 에서 구현해보도록 하겠습니다.
+
+
+
+|- /src
+
+|-+ /middlewares
+
+|--+ logger.middleware.ts 
+
+
+
+대부분 어딜가든 파일명부터 가독성을 높혀주는것이 좋습니다. 
+
+> 사실 나도 잘안지킴 ^^;;
+
+
+
+#### 5. 1파일명 컨벤션
+
+`[이름] .  [역활내용]  . [확장자] `
+
+
+
+무저건 이렇게 만들어야 실행되는것이 아니라. 파일면 컨벤션이라 보시면될듯?
+
+그래서 저희도 express 할때 
+
+​     이름    역활내용  확장자
+
+>  user  .controller   .js  
+
+
+
+기억나시나요? user에 관련된 controller 파일이다 라는것을 명시해주고있죠
+
+
+
+
+
+### 5. 2 logger.middleware.ts 
+
+```typescript
+import { Injectable, Logger, NestMiddleware } from '@nestjs/common'
+import { NextFunction, Request, Response } from 'express'
+
+@Injectable()
+export class LoggerMiddleware implements NestMiddleware {
+    private logger = new Logger('HTTP')
+
+    use(req: Request, res: Response, next: NextFunction): void {
+        const { ip, method, originalUrl } = req
+        const userAgent = req.get('user-agent') || ''
+
+        res.on('finish', () => {
+            const { statusCode } = res
+            const contentLenght = res.get('content-lenght')
+            this.logger.log(`${method} ${originalUrl} ${statusCode} ${contentLenght} - ${userAgent} ${ip}`)
+        })
+
+        next()
+    }
+}
+
+```
+
+
+
+
+
+### app.module.ts
+
+```typescript
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
+import { ConfigModule, ConfigService } from '@nestjs/config'
+import { AppController } from './app.controller'
+import { AppService } from './app.service'
+import { LoggerMiddleware } from './middlewares/logger.middleware'
+
+@Module({
+    imports: [ConfigModule.forRoot({ isGlobal: true })],
+    controllers: [AppController],
+    providers: [AppService, ConfigService],
+})
+export class AppModule implements NestModule {
+    configure(consumer: MiddlewareConsumer): any {
+        consumer.apply(LoggerMiddleware).forRoutes('*')
+    }
+}
+
+```
+
+
+
+이후 서버 시작하시고
+
+브라우저에서 요청날리면
+
+
+
+[Nest] 28296  - 2022. 05. 22. 오후 2:19:41     LOG [HTTP] GET / 304 undefined - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36 ::1
+
+
+
+이러한 로그가 뜰거임. 
+
+
+
+### 5.3 설명
+
+implements , injectable (DI) 에 대해서 설명 
+
+향후..해보자..
+
+
+
+
+
+> 참고사이트
+>
+> 
+>
+> https://medium.com/crocusenergy/nestjs-middleware-%EA%B0%9C%EB%85%90-%EB%B0%8F-%EC%8B%A4%EC%8A%B5-649b14bf65ff
+
+
+
+
+
+## 
+
+
+
+### 6. Swagger 를 통한 API문서제작
+
+> 참고사이트
+>
+> https://docs.nestjs.com/openapi/introduction
+
+
+
+
+
+```sh
+npm install @nestjs/swagger swagger-ui-express
+```
+
+
+
+
+
+**main.ts**
+
+```typescript
+async function bootstrap() {
+    const app = await NestFactory.create(AppModule)
+
+    const prefix = '/api/v1'
+    app.setGlobalPrefix(prefix)
+
+    const config = new DocumentBuilder()
+        .setTitle('ingServe')
+        .setDescription('연습을 위한 API 문서입니다.')
+        .setVersion('1.0')
+        .addCookieAuth('connect.sid')
+        .build()
+
+    const document = SwaggerModule.createDocument(app, config)
+    SwaggerModule.setup('api', app, document)
+
+    const port = process.env.SERVER_PORT || 3000
+    await app.listen(port)
+    console.log(`서버 시작 포트는 : ${port}`)
+
+    if (module.hot) {
+        module.hot.accept()
+        module.hot.dispose(() => app.close())
+    }
+}
+```
+
+
+
+
+
+http://localhost:3000/api 에 들어가면 나온다.
+
+
+
+
+
+### 나중에할거 
+
+`GET auth/login` 요청시 Hello Login 을 띄어보겠습니다.
+
+
+
+> IoC ( Inversion of Control, 제어의 역전)
+
+
+
+데코레이터
+
+
+
+
+
 # 에러노트
 
 ## wepback hot load 이슈
@@ -187,4 +531,4 @@ bootstrap()
 npm i --save-dev webpack webpack-cli webpack-node-externals ts-loader run-script-webpack-plugin
 ```
 
-왜안되 ^^ㅣ발 
+일단 그만하자... npm run start:dev로 처리위주로 갑니다.
