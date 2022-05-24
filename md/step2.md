@@ -299,7 +299,17 @@ app.get('/user/profile/:email', getParamProfile)
 
 
 
+http://localhost:3000/user/profile?email=web7722@gmail.com 
 
+http://localhost:3000/user/profile/web7722@gmail.com 
+
+
+
+요청으로 테스트 해본다면, 되겠죠? 아마 굳이 실행안시켜도 알거에요,
+
+여기서 살짝 포인트를 잡자면 둘다 같은 응답인데
+
+res.json을 두번똑같이 쓴게 살짝 신경쓰이네요 
 
 
 
@@ -345,3 +355,28 @@ export class UserService {
 
 
 
+여기서는 응답을 줄떈 똑같은 로직입니다.
+
+controller와 service 를 나눈이유가 여기서 발휘되네요,
+
+
+
+즉 응답에 대한 내용은 service에서만 관리하고
+
+데이터 조작에 대해서는 controller에 맡기는 구조이네요,
+
+
+
+
+
+## 3. 커스텀 데코레이터 만들기
+
+
+
+
+
+
+
+## 4. 인터셉터 사용하기
+
+ 
