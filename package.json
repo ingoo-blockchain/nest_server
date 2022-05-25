@@ -20,6 +20,7 @@
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "test:e2e": "jest --config ./test/jest-e2e.json",
+        "test:js": "jest --config ./test/jsjoda-spec.ts",
         "schema:drop": "ts-node ./node_modules/typeorm/cli.js schema:drop",
         "schema:sync": "ts-node ./node_modules/typeorm/cli.js schema:sync"
     },
@@ -30,6 +31,7 @@
         "@nestjs/platform-express": "^8.0.0",
         "@nestjs/swagger": "^5.2.1",
         "@nestjs/typeorm": "^8.0.4",
+        "js-joda": "^1.11.0",
         "mysql2": "^2.3.3",
         "reflect-metadata": "^0.1.13",
         "rimraf": "^3.0.2",
