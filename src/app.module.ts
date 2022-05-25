@@ -5,14 +5,10 @@ import { AppService } from './app.service'
 import { LoggerMiddleware } from './middlewares/logger.middleware'
 import { UserModule } from './user/user.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { ormConfig } from './orm.config'
+import * as config from '../ormconfig'
 
 @Module({
-    imports: [
-        TypeOrmModule.forRootAsync({ useFactory: ormConfig }),
-        ConfigModule.forRoot({ isGlobal: true }),
-        UserModule,
-    ],
+    imports: [TypeOrmModule.forRootAsync(config), ConfigModule.forRoot({ isGlobal: true }), UserModule],
     controllers: [AppController],
     providers: [AppService, ConfigService],
 })
