@@ -1,5 +1,6 @@
 # TypeORM
 
+## DB 연결
 ```sh
 npm install --save @nestjs/typeorm typeorm@0.2 mysql2
 ```
@@ -77,3 +78,65 @@ autoLoadEntities 와 retryDelay는 내부적으로 지원하지 않는다고하�
 
 그리고
 ormconfig.json 말고 확장자를 ts로 바꾸고싶은데 어떻게 안되나..?
+
+
+> 코드를 수정함. 
+
+## 테이블 객체 생성
+
+|- /src/entites
+|-- [테이블명].entity.ts
+
+`user`테이블 생성
+```ts
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm'
+
+@Entity()
+export class User {
+    @PrimaryGeneratedColumn()
+    id: number
+
+    @Column()
+    email: string
+
+    @Column()
+    nickname: string
+
+    @Column()
+    password: string
+}
+```
+
+
+
+## 초기 데이터 넣어보기
+
+> 공식문서
+> https://www.npmjs.com/package/typeorm-seeding
+
+```sh
+npm install typeorm-seeding
+```
+
+> **default**
+> The default paths are src/database/{seeds,factories}/**/*{.ts,.js}
+
+기본 패스명이 개인적으로 너무 맘에안든다
+시퀄라이즈 영향일지는 모르겠지만.
+databases 디렉토리가 싫다. 바꾸고싶다면
+`ormconfig.ts` 에서 변경이 가능하다고 한다.
+
+```ts
+module.exports = {
+  ...
+  seeds: ['src/seeds/**/*{.ts,.js}'],
+  factories: ['src/factories/**/*{.ts,.js}'],
+}
+```
+
+그리고 가짜 데이터를 넣고싶을땐 좋은 라이브러리가있다.
+
+fakter 이다.
+```sh 
+npm install -D @types/faker
+```
